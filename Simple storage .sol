@@ -1,22 +1,37 @@
-# # Simple Storage Smart Contract
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-A beginner-friendly Solidity smart contract with:
+contract SimpleStorage {
 
-- Owner-based access control
-- Event emission
-- Update counter
-- Ownership transfer
+    uint256 private storedNumber;
+    address public owner;
+    uint256 public updateCount;
 
-## Features
+    event NumberUpdated(uint256 newNumber, address updatedBy);
 
-- Store a number
-- Only owner can update it
-- Emits event when updated
-- Tracks how many times updated
+    constructor(uint256 _initialNumber) {
+        storedNumber = _initialNumber;
+        owner = msg.sender;
+        updateCount = 0;
+    }
 
-## Deployment
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the contract owner");
+        _;
+    }
 
-Deploy using Remix IDE:
-https://remix.ethereum.org
+    function setNumber(uint256 _newNumber) public onlyOwner {
+        storedNumber = _newNumber;
+        updateCount++;
+        emit NumberUpdated(_newNumber, msg.sender);
+    }
 
-Solidity version: ^0.8.20
+    function getNumber() public view returns (uint256) {
+        return storedNumber;
+    }
+
+    function transferOwnership(address _newOwner) public onlyOwner {
+        require(_newOwner != address(0), "Invalid address");
+        owner = _newOwner;
+    }
+}
